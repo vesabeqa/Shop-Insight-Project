@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+streamlit
+sqlalchemy
+pymysql
+kafka-python
+requests
+plotly
+python-multipart
