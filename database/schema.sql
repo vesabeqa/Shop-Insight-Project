@@ -51,7 +51,9 @@ CREATE TABLE IF NOT EXISTS products (
     selling_price DECIMAL(10,2) NOT NULL,
     stock_quantity INT NOT NULL DEFAULT 0,
     low_stock_threshold INT NOT NULL DEFAULT 5,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
 
     UNIQUE (id, business_id),
 
@@ -85,9 +87,10 @@ CREATE TABLE IF NOT EXISTS sales (
     business_id INT NOT NULL,
     user_id INT NOT NULL,
     total_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
-    sale_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    sale_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     UNIQUE (id, business_id),
+    INDEX idx_sales_business_date (business_id, sale_date),
 
     CONSTRAINT fk_sales_business
         FOREIGN KEY (business_id)
@@ -144,6 +147,7 @@ CREATE TABLE IF NOT EXISTS stock_alerts (
     message VARCHAR(255) NOT NULL,
     is_resolved BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_stock_alerts_resolved (business_id, is_resolved),
 
     CONSTRAINT fk_stock_alerts_product
         FOREIGN KEY (product_id, business_id)
@@ -162,6 +166,7 @@ CREATE TABLE IF NOT EXISTS import_logs (
     rejected_rows INT NOT NULL DEFAULT 0,
     error_details TEXT,
     imported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_import_logs_business_date (business_id, imported_at),
 
     CONSTRAINT fk_import_logs_business
         FOREIGN KEY (business_id)
@@ -198,25 +203,3 @@ CREATE TABLE IF NOT EXISTS processed_events (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-
-CREATE INDEX idx_products_business
-ON products(business_id);
-
-CREATE INDEX idx_products_category
-ON products(category_id);
-
-CREATE INDEX idx_sales_business_date
-ON sales(business_id, sale_date);
-
-CREATE INDEX idx_sale_items_product
-ON sale_items(product_id);
-
-CREATE INDEX idx_stock_alerts_resolved
-ON stock_alerts(business_id, is_resolved);
-
-CREATE INDEX idx_import_logs_business_date
-ON import_logs(business_id, imported_at);
-
-CREATE INDEX idx_processed_events_sale
-ON processed_events(sale_id);
-
