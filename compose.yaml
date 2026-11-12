@@ -3,7 +3,7 @@ name: shop-insight
 
 services:
 
-  #  MYSQL DATABASE
+  # MYSQL DATABASE
   mysql:
     image: mysql:8.4
     container_name: shop-insight-mysql
@@ -17,6 +17,7 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 10s
@@ -24,7 +25,7 @@ services:
       retries: 10
       start_period: 30s
 
-  #  APACHE KAFKA
+  # APACHE KAFKA
   kafka:
     image: apache/kafka:4.1.2
     container_name: shop-insight-kafka
@@ -68,7 +69,7 @@ services:
     volumes:
       - ./pipeline:/opt/spark-apps
 
-  #  APACHE SPARK WORKER
+  # APACHE SPARK WORKER
   spark-worker:
     image: apache/spark:4.1.3-scala2.13-java17-python3-ubuntu
     container_name: shop-insight-spark-worker
@@ -87,7 +88,7 @@ services:
     volumes:
       - ./pipeline:/opt/spark-apps
 
-  #  FASTAPI BACKEND
+  # FASTAPI BACKEND
   backend:
     build:
       context: .
@@ -102,6 +103,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SPARK_MASTER: spark://spark-master:7077
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
     ports:
       - "8000:8000"
     volumes:
@@ -116,7 +118,7 @@ services:
       spark-master:
         condition: service_started
 
-  #  STREAMLIT FRONTEND
+  # STREAMLIT FRONTEND
   frontend:
     build:
       context: .
@@ -124,7 +126,7 @@ services:
     container_name: shop-insight-frontend
     restart: unless-stopped
     environment:
-      API_URL: http://backend:8000
+      API_URL: "http://backend:8000"
     ports:
       - "8501:8501"
     volumes:
