@@ -8,3 +8,6 @@ requests
 plotly
 python-multipart
 cryptography
+bcrypt
+PyJWT
+pydantic[email]
