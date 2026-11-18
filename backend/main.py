@@ -1,9 +1,13 @@
-from fastapi import FastAPI
-from fastapi import Depends
+from fastapi import Depends, FastAPI
 from sqlalchemy import text
+from sqlalchemy.orm import Session
+
 from backend.database import get_db
+from backend.routers import auth
 
 app = FastAPI(title="Shop Insight API")
+
+app.include_router(auth.router)
 
 
 @app.get("/")
@@ -15,7 +19,8 @@ def home():
 def health():
     return {"status": "healthy"}
 
+
 @app.get("/health/db")
-def health_db(db=Depends(get_db)):
+def health_db(db: Session = Depends(get_db)):
     db.execute(text("SELECT 1"))
     return {"database": "ok"}
