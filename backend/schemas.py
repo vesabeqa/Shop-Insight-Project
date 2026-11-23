@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from decimal import Decimal
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
@@ -38,3 +38,45 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserOut
+
+
+
+class ProductCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=150)
+    description: str | None = None
+    category_id: int | None = None
+    purchase_price: Decimal = Field(ge=0, max_digits=10, decimal_places=2)
+    selling_price: Decimal = Field(ge=0, max_digits=10, decimal_places=2)
+    stock_quantity: int = Field(default=0, ge=0)
+    low_stock_threshold: int = Field(default=5, ge=0)
+
+
+class ProductUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=150)
+    description: str | None = None
+    category_id: int | None = None
+    purchase_price: Decimal | None = Field(
+        default=None, ge=0, max_digits=10, decimal_places=2
+    )
+    selling_price: Decimal | None = Field(
+        default=None, ge=0, max_digits=10, decimal_places=2
+    )
+    stock_quantity: int | None = Field(default=None, ge=0)
+    low_stock_threshold: int | None = Field(default=None, ge=0)
+
+
+class ProductOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    business_id: int
+    category_id: int | None
+    name: str
+    description: str | None
+    purchase_price: Decimal
+    selling_price: Decimal
+    stock_quantity: int
+    low_stock_threshold: int
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime | None = None
