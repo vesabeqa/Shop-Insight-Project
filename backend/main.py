@@ -3,12 +3,13 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
-from backend.routers import auth, products 
+from backend.routers import auth, products, categories
 
 app = FastAPI(title="Shop Insight API")
 
 app.include_router(auth.router)
 app.include_router(products.router)
+app.include_router(categories.router)
 
 
 @app.get("/")

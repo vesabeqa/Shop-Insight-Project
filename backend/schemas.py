@@ -80,3 +80,27 @@ class ProductOut(BaseModel):
     is_active: bool
     created_at: datetime
     updated_at: datetime | None = None
+
+    
+class CategoryCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    name: str = Field(min_length=1, max_length=100)
+
+
+class CategoryUpdate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    name: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=100,
+    )
+
+
+class CategoryOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    business_id: int
+    name: str
