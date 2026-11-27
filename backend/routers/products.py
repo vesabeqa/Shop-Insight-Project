@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -83,15 +83,24 @@ def create_product(
 
 @router.get("", response_model=list[ProductOut])
 def list_products(
+    search: str | None = Query(default=None, max_length=100),
+    category_id: int | None = None,
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    products = db.scalars(
-        select(Product).where(
-            Product.business_id == current_user.business_id,
-            Product.is_active.is_(True),
-        )
-    ).all()
+    query = select(Product).where(
+        Product.business_id == current_user.business_id,
+        Product.is_active.is_(True),
+    )
+    if search:
+        query = query.where(Product.name.contains(search, autoescape=True))
+    if category_id is not None:
+        query = query.where(Product.category_id == category_id)
+
+    query = query.order_by(Product.name, Product.id).limit(limit).offset(offset)
+    return db.scalars(query).all()
 
     return products
 

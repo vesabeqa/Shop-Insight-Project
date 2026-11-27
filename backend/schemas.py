@@ -42,18 +42,22 @@ class TokenResponse(BaseModel):
 
 
 class ProductCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     name: str = Field(min_length=1, max_length=150)
-    description: str | None = None
+    description: str | None = Field(default=None, max_length=2000)
     category_id: int | None = None
     purchase_price: Decimal = Field(ge=0, max_digits=10, decimal_places=2)
     selling_price: Decimal = Field(ge=0, max_digits=10, decimal_places=2)
-    stock_quantity: int = Field(default=0, ge=0)
-    low_stock_threshold: int = Field(default=5, ge=0)
+    stock_quantity: int = Field(default=0, ge=0, le=1_000_000)
+    low_stock_threshold: int = Field(default=5, ge=0, le=1_000_000)
 
 
 class ProductUpdate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     name: str | None = Field(default=None, min_length=1, max_length=150)
-    description: str | None = None
+    description: str | None = Field(default=None, max_length=2000)
     category_id: int | None = None
     purchase_price: Decimal | None = Field(
         default=None, ge=0, max_digits=10, decimal_places=2
@@ -61,8 +65,8 @@ class ProductUpdate(BaseModel):
     selling_price: Decimal | None = Field(
         default=None, ge=0, max_digits=10, decimal_places=2
     )
-    stock_quantity: int | None = Field(default=None, ge=0)
-    low_stock_threshold: int | None = Field(default=None, ge=0)
+    stock_quantity: int | None = Field(default=None, ge=0, le=1_000_000)
+    low_stock_threshold: int | None = Field(default=None, ge=0, le=1_000_000)
 
 
 class ProductOut(BaseModel):
